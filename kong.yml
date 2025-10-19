@@ -2,27 +2,95 @@ _format_version: "3.0"
 _transform: true
 
 services:
+  # === Auth Service ===
   - name: auth-service
-    url: http://auth-be:8080
+    host: auth-be
+    port: 8080
     routes:
-      - name: auth-route
-        paths:
+      - name: auth-primary
+        paths: 
           - /auth
-        strip_path: false
-        
+          - /auth/
+          - /api/auth
+          - /api/auth/
+        strip_path: true
+        preserve_host: false
+      
+      # Ruta adicional para capturar todo bajo /auth
+      - name: auth-catch-all
+        paths: 
+          - /auth/.*
+        strip_path: true
+        preserve_host: false
+        regex_priority: 10
 
+  # === Suggest Service ===
   - name: suggest-service
-    url: http://prooflift-suggest-be:8000
+    host: prooflift-suggest-be
+    port: 8000
     routes:
-      - name: suggest-route
-        paths:
+      - name: suggest-primary
+        paths: 
           - /suggest
-        strip_path: false
+          - /suggest/
+          - /api/suggest
+          - /api/suggest/
+          - /suggests
+          - /suggests/
+        strip_path: true
+        preserve_host: false
+      
+      - name: suggest-catch-all
+        paths: 
+          - /suggest/.*
+          - /suggests/.*
+        strip_path: true
+        preserve_host: false
+        regex_priority: 10
 
+  # === Posts Service ===
   - name: posts-service
-    url: http://prooflift-posts-be:8000
+    host: prooflift-posts-be
+    port: 8000
     routes:
-      - name: posts-route
-        paths:
+      - name: posts-primary
+        paths: 
           - /posts
-        strip_path: false
+          - /posts/
+          - /api/posts
+          - /api/posts/
+        strip_path: true
+        preserve_host: false
+      
+      - name: posts-graphql
+        paths: 
+          - /graphql
+          - /graphql/
+        strip_path: false  # GraphQL necesita path completo
+        preserve_host: false
+      
+      - name: posts-catch-all
+        paths: 
+          - /posts/.*
+        strip_path: true
+        preserve_host: false
+        regex_priority: 10
+
+  # === Health Check Service ===
+  - name: health-service
+    host: localhost
+    port: 8000
+    routes:
+      - name: health-route
+        paths: 
+          - /health
+          - /status
+        strip_path: true
+
+plugins:
+  - name: cors
+    config:
+      origins: ["http://localhost:3000", "http://prooflift-fe:80"]
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+      headers: ["Accept", "Content-Type", "Authorization", "X-Requested-With"]
+      credentials: true
