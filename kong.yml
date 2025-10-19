@@ -13,14 +13,14 @@ services:
           - /auth/
           - /api/auth
           - /api/auth/
-        strip_path: true
+        strip_path: false
         preserve_host: false
       
       # Ruta adicional para capturar todo bajo /auth
       - name: auth-catch-all
         paths: 
           - /auth/.*
-        strip_path: true
+        strip_path: false
         preserve_host: false
         regex_priority: 10
 
@@ -90,7 +90,8 @@ services:
 plugins:
   - name: cors
     config:
-      origins: ["http://localhost:3000", "http://prooflift-fe:80"]
+      # origins: ["http://localhost:3000", "http://prooflift-fe:80"]
+      origins: ["*"]
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
       headers: ["Accept", "Content-Type", "Authorization", "X-Requested-With"]
       credentials: true
